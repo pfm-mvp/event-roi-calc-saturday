@@ -56,25 +56,25 @@ def fmt_pct(x, decimals=1):
 PRESETS = {
     "Fashion Retail": {
         "visitors_day": 800, "conv_pct": 0.20, "atv_eur": 45.0, "open_days": 7,
-        "capex": 3500.0, "opex_month": 129.0, "gross_margin": 0.60,
+        "capex": 1500.0, "opex_month": 30.0, "gross_margin": 0.60,
         "uplift_conv": 0.05, "uplift_spv": 0.05, "sat_share": 0.18, "sat_boost": 0.10,
         "desc": "Fashion: steady weekday traffic, weekend peaks; upsell and fitting-room conversion drive ROI."
     },
     "Optics & Eyewear": {
         "visitors_day": 250, "conv_pct": 0.35, "atv_eur": 140.0, "open_days": 6,
-        "capex": 5000.0, "opex_month": 159.0, "gross_margin": 0.65,
+        "capex": 1500.0, "opex_month": 30.0, "gross_margin": 0.65,
         "uplift_conv": 0.04, "uplift_spv": 0.06, "sat_share": 0.20, "sat_boost": 0.08,
         "desc": "Optics: higher ATV with appointment-like footfall; staffing around Saturday boosts conversion."
     },
     "Sports & Outdoor": {
         "visitors_day": 600, "conv_pct": 0.22, "atv_eur": 60.0, "open_days": 7,
-        "capex": 4000.0, "opex_month": 139.0, "gross_margin": 0.58,
+        "capex": 1500.0, "opex_month": 30.0, "gross_margin": 0.58,
         "uplift_conv": 0.05, "uplift_spv": 0.07, "sat_share": 0.22, "sat_boost": 0.12,
         "desc": "Sports: seasonal peaks; demo zones and weekend traffic make SPV and conversion pop."
     },
     "Drugstore & Personal Care": {
         "visitors_day": 900, "conv_pct": 0.28, "atv_eur": 22.0, "open_days": 7,
-        "capex": 3000.0, "opex_month": 119.0, "gross_margin": 0.40,
+        "capex": 1500.0, "opex_month": 30.0, "gross_margin": 0.40,
         "uplift_conv": 0.03, "uplift_spv": 0.04, "sat_share": 0.16, "sat_boost": 0.06,
         "desc": "Drugstore: high frequency, lower ATV; queue reduction and cross-sell lift weekend ROI."
     },
@@ -82,17 +82,18 @@ PRESETS = {
 
 for k, v in [
     ("visitors_day", 800), ("conv_pct", 0.20), ("atv_eur", 45.0), ("open_days", 7),
-    ("capex", 3500.0), ("opex_month", 129.0), ("gross_margin", 0.60),
+    ("capex", 1500.0), ("opex_month", 30.0), ("gross_margin", 0.60),
     ("uplift_conv", 0.05), ("uplift_spv", 0.05), ("sat_share", 0.18), ("sat_boost", 0.10),
     ("preset_desc", ""),
 ]:
     st.session_state.setdefault(k, v)
 
-col_p1, col_p2 = st.columns([1,1])
+col_p1, col_p2 = st.columns([4,1])
 with col_p1:
     preset_name = st.selectbox("Preset profile", list(PRESETS.keys()), index=0)
 with col_p2:
-    if st.button("Apply preset", type="primary"):
+    st.markdown("<div style='height:30px'></div>", unsafe_allow_html=True)
+    if st.button("Apply preset", type="primary", use_container_width=True):
         p = PRESETS[preset_name]
         for key in ["visitors_day","conv_pct","atv_eur","open_days","capex","opex_month","gross_margin","uplift_conv","uplift_spv","sat_share","sat_boost"]:
             st.session_state[key] = p[key]
@@ -207,14 +208,15 @@ st.markdown("### 📊 Visuals")
 h = 380 if not expo else 460
 
 fig_bar = go.Figure()
-fig_bar.add_trace(go.Bar(name="Baseline", x=["Revenue/year"], y=[turn_year], marker_color="#F59E0B"))
-fig_bar.add_trace(go.Bar(name="New (scenario)", x=["Revenue/year"], y=[turn_year_new], marker_color="#762181"))
-fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"))
+fig_bar.add_trace(go.Bar(name="Baseline", x=["Revenue/year"], y=[turn_year], marker_color="#F59E0B", text=[fmt_eur_local(turn_year)], textposition="outside"))
+fig_bar.add_trace(go.Bar(name="New (scenario)", x=["Revenue/year"], y=[turn_year_new], marker_color="#762181", text=[fmt_eur_local(turn_year_new)], textposition="outside"))
+fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"), uniformtext_minsize=10, uniformtext_mode="hide")
 fig_bar.update_yaxes(tickformat=",.0f", title="€ / year")
+fig_bar.update_traces(cliponaxis=False)
 st.plotly_chart(fig_bar, use_container_width=True)
 
 fig_pie = go.Figure(data=[go.Pie(labels=["Conversion", "SPV"], values=[share_conv, share_spv], hole=.55,
-                                 marker=dict(colors=["#16A34A", "#762181"]),
+                                 marker=dict(colors=["#F04438", "#762181"]),
                                  textinfo="percent+label")])
 fig_pie.update_layout(height=h-40, margin=dict(l=20,r=20,t=10,b=10), showlegend=True)
 st.plotly_chart(fig_pie, use_container_width=True)
