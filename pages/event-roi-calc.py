@@ -175,12 +175,32 @@ payback_months = float("inf") if extra_profit_month <= 0 else capex / extra_prof
 roi_year_pct   = (uplift_year_abs * gross_margin - opex_month * 12 - capex) / max(1.0, (capex + opex_month * 12))
 roi_year_pct   = max(-1.0, roi_year_pct)
 
+# --- Split for donut (conversion vs SPV) ---
+# Conv-only: Saturday gets extra conversion, non-Saturday stays baseline conversion; ATV baseline.
+conv_only_turn   = ((visitors_year * sat_share) * (conv_pct * (1 + sat_boost)) +
+                    (visitors_year * (1 - sat_share)) * conv_pct) * atv_eur
+conv_only_uplift = max(0.0, conv_only_turn - turn_year)
+
+# SPV-only: keep conversions baseline, apply SPV uplift to ATV.
+spv_only_turn    = trans_year * (atv_eur * (1 + uplift_spv))
+spv_only_uplift  = max(0.0, spv_only_turn - turn_year)
+
+split_total      = max(1e-9, conv_only_uplift + spv_only_uplift)
+share_conv       = conv_only_uplift / split_total
+share_spv        = spv_only_uplift / split_total
+
+# Pre-format for EU hover tooltips
+baseline_eur = fmt_eur(turn_year)
+scenario_eur = fmt_eur(turn_year_new)
+conv_uplift_eur = fmt_eur(conv_only_uplift)
+spv_uplift_eur  = fmt_eur(spv_only_uplift)
+
 # =========================
 # KPI Cards
 # =========================
 k1, k2, k3, k4 = st.columns(4)
 with k1:
-    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/year</b></div><div class="kpi">{fmt_eur(turn_year)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/year</b></div><div class="kpi">{baseline_eur}</div></div>', unsafe_allow_html=True)
 with k2:
     st.markdown(f'<div class="card"><div><b>⚡ Uplift (year)</b></div><div class="kpi">{fmt_eur(uplift_year_abs)}</div></div>', unsafe_allow_html=True)
 with k3:
@@ -191,20 +211,63 @@ with k4:
     st.markdown(f'<div class="{card_cls}"><div class="payback-title">⏱️ Payback time</div><div class="kpi">{payback_text}</div><div class="kpi-sub">ROI-year {fmt_pct(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
 
 # =========================
-# Visuals
+# Visuals (EU hover tooltips)
 # =========================
 st.markdown("### 📊 Visuals")
 h = 420 if expo else 360
 
+# --- Bar with EU labels + EU hover ---
 fig_bar = go.Figure()
-fig_bar.add_trace(go.Bar(name="Baseline", x=["Revenue/year"], y=[turn_year], marker_color=PFM_AMBER,
-                         text=[fmt_eur(turn_year)], textposition="outside", cliponaxis=False))
-fig_bar.add_trace(go.Bar(name="New (scenario)", x=["Revenue/year"], y=[turn_year_new], marker_color=PFM_PURPLE,
-                         text=[fmt_eur(turn_year_new)], textposition="outside", cliponaxis=False))
+fig_bar.add_trace(go.Bar(
+    name="Baseline",
+    x=["Revenue/year"], y=[turn_year], marker_color=PFM_AMBER,
+    text=[baseline_eur], textposition="outside", cliponaxis=False,
+    customdata=[[baseline_eur]],
+    hovertemplate="Baseline: %{customdata[0]}<extra></extra>"
+))
+fig_bar.add_trace(go.Bar(
+    name="New (scenario)",
+    x=["Revenue/year"], y=[turn_year_new], marker_color=PFM_PURPLE,
+    text=[scenario_eur], textposition="outside", cliponaxis=False,
+    customdata=[[scenario_eur]],
+    hovertemplate="New (scenario): %{customdata[0]}<extra></extra>"
+))
 fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"))
 st.plotly_chart(fig_bar, use_container_width=True)
 
-fig_pie = go.Figure(data=[go.Pie(labels=["Conversion", "SPV"], values=[uplift_conv, uplift_spv], hole=.55,
-                                 marker=dict(colors=[PFM_RED, PFM_PURPLE]), textinfo="percent+label")])
+# --- Donut: Conversion (red) vs SPV (purple) with EU hover ---
+# Values are shares; hover shows both share and absolute uplift in €.
+fig_pie = go.Figure(data=[go.Pie(
+    labels=["Conversion", "SPV"],
+    values=[share_conv, share_spv],
+    hole=.55,
+    marker=dict(colors=[PFM_RED, PFM_PURPLE]),
+    textinfo="percent+label",
+    customdata=[[conv_uplift_eur],[spv_uplift_eur]],
+    hovertemplate="%{label}: %{percent} — uplift %{customdata[0]}<extra></extra>"
+)])
 fig_pie.update_layout(height=h-40, margin=dict(l=20,r=20,t=10,b=10), showlegend=True)
 st.plotly_chart(fig_pie, use_container_width=True)
+
+# =========================
+# Recommendations
+# =========================
+st.markdown("### 🤖 Recommendations")
+bullets = []
+if uplift_year_abs <= 0:
+    bullets.append("Increase **ATV** (bundles, checkout add-ons) or **conversion** at entry; current inputs do not yield a positive ROI.")
+else:
+    if uplift_conv > uplift_spv:
+        bullets.append("Focus on **conversion** during peak hours (greet & lead, extra front-of-store staffing, queue trimming).")
+    if uplift_spv >= uplift_conv:
+        bullets.append("Activate **upsell/cross-sell** routines (bundles, accessories); coach teams on average ticket value.")
+    if sat_boost > 0 and sat_share > 0.12:
+        bullets.append("Make **Saturday** your profit engine: hourly micro-promos, fast checkout, hero products at the entrance.")
+    if payback_months != float("inf") and payback_months < 12:
+        bullets.append("Headliner: **payback < 12 months** — decision-makers react fast to this.")
+    if extra_profit_month <= 0:
+        bullets.append("Adjust costs or margins: renegotiate subscription or focus on higher-margin categories.")
+if not bullets:
+    bullets.append("Stable performance. Try micro-experiments: 2 weeks with 1 upsell script + staff roster tuned to peaks.")
+for b in bullets:
+    st.write(f"- {b}")
