@@ -26,6 +26,7 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 .kpi-sub {{ color:#666; }}
 .payback-card {{ border:1px solid var(--pfm-orange); background: #FFF7F2; }}
 .payback-title {{ font-weight:700; }}
+/* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 </style>
 """
@@ -93,20 +94,26 @@ for k, v in [
     ("visitors_day", 800), ("conv_pct", 0.20), ("atv_eur", 45.0), ("open_days", 7),
     ("capex", 1500.0), ("opex_month", 30.0), ("gross_margin", 0.60),
     ("uplift_conv", 0.05), ("uplift_spv", 0.05), ("sat_share", 0.18), ("sat_boost", 0.10),
+    ("num_stores", 1),
     ("preset_desc", ""),
 ]:
     st.session_state.setdefault(k, v)
 
-# Preset selector + aligned button
-c1, c2 = st.columns([3,1])
+# =========================
+# Preset selector row: dropdown | Number of stores | Apply
+# =========================
+c1, c2, c3 = st.columns([3,1,1])
 with c1:
     preset_name = st.selectbox("Preset profile", list(PRESETS.keys()), index=0, key="preset_select")
 with c2:
-    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
+    st.session_state["num_stores"] = st.number_input("Number of stores", min_value=1, step=1, value=int(st.session_state["num_stores"]))
+with c3:
+    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)  # slight vertical centering
     if st.button("Apply preset", use_container_width=True):
         p = PRESETS[preset_name]
         for key in ["visitors_day","conv_pct","atv_eur","open_days","capex","opex_month","gross_margin","uplift_conv","uplift_spv","sat_share","sat_boost"]:
             st.session_state[key] = p[key]
+        # NOTE: do not overwrite num_stores when applying a preset
         st.session_state["preset_desc"] = p.get("desc","")
         st.rerun()
 
@@ -118,116 +125,125 @@ if st.session_state.get("preset_desc"):
 # =========================
 left, right = st.columns([1,1])
 with left:
-    st.subheader("Inputs")
+    st.subheader("Inputs (per store)")
     st.session_state["visitors_day"] = st.number_input("Visitors per day", min_value=0, value=int(st.session_state["visitors_day"]), step=25)
     st.session_state["conv_pct"]     = st.slider("Conversion rate (%)", 1, 80, int(round(st.session_state["conv_pct"]*100)), 1) / 100.0
     st.session_state["atv_eur"]      = st.number_input("Average ticket value (ATV, €)", min_value=0.0, value=float(st.session_state["atv_eur"]), step=1.0)
     st.session_state["open_days"]    = st.slider("Open days per week", 1, 7, int(st.session_state["open_days"]), 1)
 
-    st.subheader("Investment & margin")
+    st.subheader("Investment & margin (per store)")
     st.session_state["capex"]        = st.number_input("One-off investment (€)", min_value=0.0, value=float(st.session_state["capex"]), step=50.0)
     st.session_state["opex_month"]   = st.number_input("Monthly subscription (€)", min_value=0.0, value=float(st.session_state["opex_month"]), step=5.0)
     st.session_state["gross_margin"] = st.slider("Gross margin (%)", 10, 90, int(round(st.session_state["gross_margin"]*100)), 1) / 100.0
 
 with right:
-    st.subheader("What-if scenarios")
+    st.subheader("What-if scenarios (apply to all stores)")
     st.session_state["uplift_conv"]  = st.slider("Conversion uplift (%)", 0, 50, int(round(st.session_state["uplift_conv"]*100)), 1) / 100.0
     st.session_state["uplift_spv"]   = st.slider("SPV uplift (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
     st.session_state["sat_share"]    = st.slider("Share of turnover on Saturdays (%)", 0, 50, int(round(st.session_state["sat_share"]*100)), 1) / 100.0
     st.session_state["sat_boost"]    = st.slider("Extra conversion on Saturdays (%)", 0, 50, int(round(st.session_state["sat_boost"]*100)), 1) / 100.0
 
 # =========================
-# Calculations
+# Calculations (chain totals = per-store × number of stores)
 # =========================
 V = st.session_state
-visitors_day = V["visitors_day"]
-conv_pct     = V["conv_pct"]
-atv_eur      = V["atv_eur"]
-open_days    = V["open_days"]
+n_stores    = int(V["num_stores"])
+vis_day     = V["visitors_day"]
+conv_pct    = V["conv_pct"]
+atv_eur     = V["atv_eur"]
+open_days   = V["open_days"]
+capex       = V["capex"]
+opex_month  = V["opex_month"]
+gross_margin= V["gross_margin"]
+uplift_conv = V["uplift_conv"]
+uplift_spv  = V["uplift_spv"]
+sat_share   = V["sat_share"]
+sat_boost   = V["sat_boost"]
 
-capex        = V["capex"]
-opex_month   = V["opex_month"]
-gross_margin = V["gross_margin"]
+# Per store
+visitors_week_store  = vis_day * open_days
+visitors_year_store  = visitors_week_store * 52
+trans_year_store     = visitors_year_store * conv_pct
+turn_year_store      = trans_year_store * atv_eur
 
-uplift_conv  = V["uplift_conv"]
-uplift_spv   = V["uplift_spv"]
-sat_share    = V["sat_share"]
-sat_boost    = V["sat_boost"]
+conv_new   = conv_pct * (1.0 + uplift_conv)
+atv_new    = atv_eur * (1.0 + uplift_spv)
 
-visitors_week  = visitors_day * open_days
-visitors_year  = visitors_week * 52
-trans_year     = visitors_year * conv_pct
-turn_year      = trans_year * atv_eur
+# Chain totals (baseline)
+visitors_year_total = visitors_year_store * n_stores
+trans_year_total    = trans_year_store * n_stores
+turn_year_total     = turn_year_store * n_stores
 
-conv_new       = conv_pct * (1.0 + uplift_conv)
-atv_new        = atv_eur * (1.0 + uplift_spv)
+# Scenario totals with Saturday boost on conversion
+visitors_year_sat_total     = visitors_year_total * sat_share
+trans_year_sat_new_total    = visitors_year_sat_total * conv_new * (1.0 + sat_boost)
+trans_year_non_sat_new_total= (visitors_year_total * (1 - sat_share)) * conv_new
+turn_year_new_total         = (trans_year_sat_new_total + trans_year_non_sat_new_total) * atv_new
 
-visitors_year_sat = visitors_year * sat_share
-trans_year_sat_new     = visitors_year_sat * conv_new * (1.0 + sat_boost)
-trans_year_non_sat_new = (visitors_year * (1 - sat_share)) * conv_new
-turn_year_new  = (trans_year_sat_new + trans_year_non_sat_new) * atv_new
+uplift_year_abs_total  = max(0.0, turn_year_new_total - turn_year_total)
+uplift_month_abs_total = uplift_year_abs_total / 12.0
 
-uplift_year_abs  = max(0.0, turn_year_new - turn_year)
-uplift_month_abs = uplift_year_abs / 12.0
-
-extra_profit_month = uplift_month_abs * gross_margin - opex_month
-payback_months = float("inf") if extra_profit_month <= 0 else capex / extra_profit_month
-roi_year_pct   = (uplift_year_abs * gross_margin - opex_month * 12 - capex) / max(1.0, (capex + opex_month * 12))
+# Costs & profit (chain-level)
+capex_total      = capex * n_stores
+opex_month_total = opex_month * n_stores
+extra_profit_month_total = uplift_month_abs_total * gross_margin - opex_month_total
+payback_months = float("inf") if extra_profit_month_total <= 0 else capex_total / extra_profit_month_total
+roi_year_pct   = (uplift_year_abs_total * gross_margin - opex_month_total * 12 - capex_total) / max(1.0, (capex_total + opex_month_total * 12))
 roi_year_pct   = max(-1.0, roi_year_pct)
 
-# --- Split for donut (conversion vs SPV) ---
-# Conv-only: Saturday gets extra conversion, non-Saturday stays baseline conversion; ATV baseline.
-conv_only_turn   = ((visitors_year * sat_share) * (conv_pct * (1 + sat_boost)) +
-                    (visitors_year * (1 - sat_share)) * conv_pct) * atv_eur
-conv_only_uplift = max(0.0, conv_only_turn - turn_year)
+# --- Split for donut (conversion vs SPV), chain-level ---
+# Conv-only uplift: conversion changes (incl. Saturday extra), ATV baseline
+conv_only_turn_total   = (((visitors_year_total * sat_share) * (conv_pct * (1 + sat_boost)) +
+                           (visitors_year_total * (1 - sat_share)) * conv_pct) * atv_eur)
+conv_only_uplift_total = max(0.0, conv_only_turn_total - turn_year_total)
 
-# SPV-only: keep conversions baseline, apply SPV uplift to ATV.
-spv_only_turn    = trans_year * (atv_eur * (1 + uplift_spv))
-spv_only_uplift  = max(0.0, spv_only_turn - turn_year)
+# SPV-only uplift: ATV increases, conversions baseline
+spv_only_turn_total    = trans_year_total * (atv_eur * (1 + uplift_spv))
+spv_only_uplift_total  = max(0.0, spv_only_turn_total - turn_year_total)
 
-split_total      = max(1e-9, conv_only_uplift + spv_only_uplift)
-share_conv       = conv_only_uplift / split_total
-share_spv        = spv_only_uplift / split_total
+split_total = max(1e-9, conv_only_uplift_total + spv_only_uplift_total)
+share_conv  = conv_only_uplift_total / split_total
+share_spv   = spv_only_uplift_total / split_total
 
 # Pre-format for EU hover tooltips
-baseline_eur = fmt_eur(turn_year)
-scenario_eur = fmt_eur(turn_year_new)
-conv_uplift_eur = fmt_eur(conv_only_uplift)
-spv_uplift_eur  = fmt_eur(spv_only_uplift)
+baseline_eur  = fmt_eur(turn_year_total)
+scenario_eur  = fmt_eur(turn_year_new_total)
+conv_uplift_eur = fmt_eur(conv_only_uplift_total)
+spv_uplift_eur  = fmt_eur(spv_only_uplift_total)
 
 # =========================
-# KPI Cards
+# KPI Cards (chain totals)
 # =========================
 k1, k2, k3, k4 = st.columns(4)
 with k1:
-    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/year</b></div><div class="kpi">{baseline_eur}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/year (chain)</b></div><div class="kpi">{baseline_eur}</div><div class="kpi-sub">× {n_stores} stores</div></div>', unsafe_allow_html=True)
 with k2:
-    st.markdown(f'<div class="card"><div><b>⚡ Uplift (year)</b></div><div class="kpi">{fmt_eur(uplift_year_abs)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>⚡ Uplift (year)</b></div><div class="kpi">{fmt_eur(uplift_year_abs_total)}</div><div class="kpi-sub">≈ {fmt_eur(uplift_month_abs_total)} / month</div></div>', unsafe_allow_html=True)
 with k3:
-    st.markdown(f'<div class="card"><div><b>💵 Extra profit/month</b></div><div class="kpi">{fmt_eur(extra_profit_month)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>💵 Extra profit/month</b></div><div class="kpi">{fmt_eur(extra_profit_month_total)}</div><div class="kpi-sub">Margin {fmt_pct(gross_margin)}</div></div>', unsafe_allow_html=True)
 with k4:
     card_cls = "card payback-card" if (payback_months != float("inf") and payback_months < 12) else "card"
     payback_text = "n/a" if payback_months == float("inf") else f"{payback_months:.1f}".replace(".", ",") + " mo"
-    st.markdown(f'<div class="{card_cls}"><div class="payback-title">⏱️ Payback time</div><div class="kpi">{payback_text}</div><div class="kpi-sub">ROI-year {fmt_pct(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="{card_cls}"><div class="payback-title">⏱️ Payback time (chain)</div><div class="kpi">{payback_text}</div><div class="kpi-sub">ROI-year {fmt_pct(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
 
 # =========================
-# Visuals (EU hover tooltips)
+# Visuals (EU hover tooltips) — chain totals
 # =========================
 st.markdown("### 📊 Visuals")
 h = 420 if expo else 360
 
-# --- Bar with EU labels + EU hover ---
+# Bar with EU labels + EU hover
 fig_bar = go.Figure()
 fig_bar.add_trace(go.Bar(
     name="Baseline",
-    x=["Revenue/year"], y=[turn_year], marker_color=PFM_AMBER,
+    x=["Revenue/year (chain)"], y=[turn_year_total], marker_color=PFM_AMBER,
     text=[baseline_eur], textposition="outside", cliponaxis=False,
     customdata=[[baseline_eur]],
     hovertemplate="Baseline: %{customdata[0]}<extra></extra>"
 ))
 fig_bar.add_trace(go.Bar(
     name="New (scenario)",
-    x=["Revenue/year"], y=[turn_year_new], marker_color=PFM_PURPLE,
+    x=["Revenue/year (chain)"], y=[turn_year_new_total], marker_color=PFM_PURPLE,
     text=[scenario_eur], textposition="outside", cliponaxis=False,
     customdata=[[scenario_eur]],
     hovertemplate="New (scenario): %{customdata[0]}<extra></extra>"
@@ -235,8 +251,7 @@ fig_bar.add_trace(go.Bar(
 fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"))
 st.plotly_chart(fig_bar, use_container_width=True)
 
-# --- Donut: Conversion (red) vs SPV (purple) with EU hover ---
-# Values are shares; hover shows both share and absolute uplift in €.
+# Donut: Conversion (red) vs SPV (purple) with EU hover
 fig_pie = go.Figure(data=[go.Pie(
     labels=["Conversion", "SPV"],
     values=[share_conv, share_spv],
@@ -254,7 +269,7 @@ st.plotly_chart(fig_pie, use_container_width=True)
 # =========================
 st.markdown("### 🤖 Recommendations")
 bullets = []
-if uplift_year_abs <= 0:
+if uplift_year_abs_total <= 0:
     bullets.append("Increase **ATV** (bundles, checkout add-ons) or **conversion** at entry; current inputs do not yield a positive ROI.")
 else:
     if uplift_conv > uplift_spv:
@@ -265,7 +280,7 @@ else:
         bullets.append("Make **Saturday** your profit engine: hourly micro-promos, fast checkout, hero products at the entrance.")
     if payback_months != float("inf") and payback_months < 12:
         bullets.append("Headliner: **payback < 12 months** — decision-makers react fast to this.")
-    if extra_profit_month <= 0:
+    if extra_profit_month_total <= 0:
         bullets.append("Adjust costs or margins: renegotiate subscription or focus on higher-margin categories.")
 if not bullets:
     bullets.append("Stable performance. Try micro-experiments: 2 weeks with 1 upsell script + staff roster tuned to peaks.")
