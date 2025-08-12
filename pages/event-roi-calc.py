@@ -9,7 +9,7 @@ expo = st.toggle("Expo mode (bigger UI for trade show screens)", value=True)
 BASE_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
-:root { --pfm-purple:#762181; --pfm-red:#F04438; --pfm-amber:#F59E0B; --pfm-green:#16A34A; }
+:root { --pfm-purple:#762181; --pfm-red:#F04438; --pfm-amber:#F59E0B; --pfm-green:#16A34A; --pfm-orange:#FEAC76; }
 html, body, [class*="css"] { font-family: 'Instrument Sans', sans-serif !important; }
 [data-baseweb="tag"] { background-color: #9E77ED !important; color: white !important; }
 .card { border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -22,6 +22,8 @@ html, body, [class*="css"] { font-family: 'Instrument Sans', sans-serif !importa
 .badge-green  { background:#E9F9EE; color:#14804A; }
 .badge-amber  { background:#FEF3C7; color:#92400E; }
 .badge-red    { background:#FEE2E2; color:#991B1B; }
+.banner { background: var(--pfm-orange); color:#111; border:1px solid var(--pfm-orange); border-radius:16px; padding:14px 18px; }
+.banner .headline { font-weight:900; font-size:1.2rem; }
 </style>
 """
 
@@ -53,6 +55,7 @@ def fmt_eur(x, decimals=0):
 def fmt_pct(x, decimals=1):
     return f"{x*100:.{decimals}f}%".replace(".", ",")
 
+# Presets with default CAPEX/OPEX 1500/30
 PRESETS = {
     "Fashion Retail": {
         "visitors_day": 800, "conv_pct": 0.20, "atv_eur": 45.0, "open_days": 7,
@@ -80,20 +83,25 @@ PRESETS = {
     },
 }
 
+# Defaults
 for k, v in [
     ("visitors_day", 800), ("conv_pct", 0.20), ("atv_eur", 45.0), ("open_days", 7),
     ("capex", 1500.0), ("opex_month", 30.0), ("gross_margin", 0.60),
-    ("uplift_conv", 0.05), ("uplift_spv", 0.05), ("sat_share", 0.18), ("sat_boost", 0.10),
+    ("uplift_conv", 0.05), ("uplift_spv_asdf", 0.05), ("sat_share", 0.18), ("sat_boost", 0.10),
     ("preset_desc", ""),
 ]:
     st.session_state.setdefault(k, v)
+# fix key typo if present
+if "uplift_spv_asdf" in st.session_state:
+    st.session_state["uplift_spv"] = st.session_state.pop("uplift_spv_asdf")
 
-col_p1, col_p2 = st.columns([4,1])
+# Preset selector row with aligned button
+col_p1, col_p2 = st.columns([3,1])
 with col_p1:
     preset_name = st.selectbox("Preset profile", list(PRESETS.keys()), index=0)
 with col_p2:
-    st.markdown("<div style='height:30px'></div>", unsafe_allow_html=True)
-    if st.button("Apply preset", type="primary", use_container_width=True):
+    st.write("")  # spacer for vertical centering
+    if st.button("Apply preset", use_container_width=True):
         p = PRESETS[preset_name]
         for key in ["visitors_day","conv_pct","atv_eur","open_days","capex","opex_month","gross_margin","uplift_conv","uplift_spv","sat_share","sat_boost"]:
             st.session_state[key] = p[key]
@@ -103,6 +111,7 @@ with col_p2:
 if st.session_state.get("preset_desc"):
     st.info(st.session_state["preset_desc"])
 
+# Inputs
 left, right = st.columns([1,1])
 with left:
     st.subheader("Inputs")
@@ -112,14 +121,14 @@ with left:
     st.session_state["open_days"]    = st.slider("Open days per week", 1, 7, int(st.session_state["open_days"]), 1)
 
     st.subheader("Investment & margin")
-    st.session_state["capex"]        = st.number_input("One-off investment (€)", min_value=0.0, value=float(st.session_state["capex"]), step=100.0, key="capex_input")
-    st.session_state["opex_month"]   = st.number_input("Monthly subscription (€)", min_value=0.0, value=float(st.session_state["opex_month"]), step=10.0, key="opex_input")
+    st.session_state["capex"]        = st.number_input("One-off investment (€)", min_value=0.0, value=float(st.session_state["capex"]), step=50.0, key="capex_input")
+    st.session_state["opex_month"]   = st.number_input("Monthly subscription (€)", min_value=0.0, value=float(st.session_state["opex_month"]), step=5.0, key="opex_input")
     st.session_state["gross_margin"] = st.slider("Gross margin (%)", 10, 90, int(round(st.session_state["gross_margin"]*100)), 1) / 100.0
 
 with right:
     st.subheader("What-if scenarios")
     st.session_state["uplift_conv"]  = st.slider("Conversion uplift (%)", 0, 50, int(round(st.session_state["uplift_conv"]*100)), 1) / 100.0
-    st.session_state["uplift_spv"]   = st.slider("SPV uplift via upsell/cross-sell (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
+    st.session_state["uplift_spv"]   = st.slider("SPV uplift via upsell/cross-sell (%)", 0, 50, int(round(st.session_state.get("uplift_spv",0.05)*100)), 1) / 100.0
     st.session_state["sat_share"]    = st.slider("Share of annual turnover on Saturdays (%)", 0, 50, int(round(st.session_state["sat_share"]*100)), 1) / 100.0
     st.session_state["sat_boost"]    = st.slider("Extra conversion on Saturdays (%)", 0, 50, int(round(st.session_state["sat_boost"]*100)), 1) / 100.0
 
@@ -138,6 +147,7 @@ uplift_spv   = V["uplift_spv"]
 sat_share    = V["sat_share"]
 sat_boost    = V["sat_boost"]
 
+# Calculations
 visitors_week  = visitors_day * open_days
 visitors_year  = visitors_week * 52
 
@@ -161,6 +171,15 @@ payback_months = float("inf") if extra_profit_month <= 0 else capex / extra_prof
 roi_year_pct   = (uplift_year_abs * gross_margin - opex_month * 12 - capex) / max(1.0, (capex + opex_month * 12))
 roi_year_pct   = max(-1.0, roi_year_pct)
 
+# Show payback banner if < 12 months
+if payback_months != float("inf") and payback_months < 12:
+    st.markdown(f"""
+    <div class="banner">
+      <div class="headline">🔥 Payback in {payback_months:.1f} months — fast ROI opportunity!</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Split: conversion vs SPV
 conv_only_turn = ((visitors_year * sat_share) * (conv_pct * (1+sat_boost)) + (visitors_year * (1 - sat_share)) * conv_pct) * atv_eur
 conv_only_uplift = max(0.0, conv_only_turn - turn_year)
 spv_only_turn = trans_year * (atv_eur * (1 + uplift_spv))
@@ -176,12 +195,14 @@ def fmt_eur_local(x, decimals=0):
 def fmt_pct_local(x, decimals=1):
     return f"{x*100:.{decimals}f}%".replace(".", ",")
 
+# KPI header
 k1, k2, k3, k4 = st.columns(4)
 k1.markdown(f'<div class="card"><div>🧮 <b>Baseline revenue/year</b></div><div class="kpi">{fmt_eur_local(turn_year)}</div><div class="kpi-sub">Conv {fmt_pct_local(conv_pct)} • ATV {fmt_eur_local(atv_eur,2)}</div></div>', unsafe_allow_html=True)
 k2.markdown(f'<div class="card"><div>⚡ <b>Uplift (year)</b></div><div class="kpi">{fmt_eur_local(uplift_year_abs)}</div><div class="kpi-sub">≈ {fmt_eur_local(uplift_month_abs)} / month</div></div>', unsafe_allow_html=True)
 k3.markdown(f'<div class="card"><div>💵 <b>Extra profit/month</b></div><div class="kpi">{fmt_eur_local(extra_profit_month)}</div><div class="kpi-sub">Margin {fmt_pct_local(gross_margin)}</div></div>', unsafe_allow_html=True)
 k4.markdown(f'<div class="card"><div>⏱️ <b>Payback time</b></div><div class="kpi">{"n/a" if payback_months == float("inf") else f"{payback_months:.1f} mo".replace(".",",")}</div><div class="kpi-sub">ROI-year {fmt_pct_local(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
 
+# Recommendations
 st.markdown("### 🤖 Recommendations")
 bullets = []
 if uplift_year_abs <= 0:
@@ -204,23 +225,28 @@ if not bullets:
 for b in bullets:
     st.write(f"- {b}")
 
+# Visuals
 st.markdown("### 📊 Visuals")
 h = 380 if not expo else 460
 
+# Bars with labels
 fig_bar = go.Figure()
-fig_bar.add_trace(go.Bar(name="Baseline", x=["Revenue/year"], y=[turn_year], marker_color="#F59E0B", text=[fmt_eur_local(turn_year)], textposition="outside"))
-fig_bar.add_trace(go.Bar(name="New (scenario)", x=["Revenue/year"], y=[turn_year_new], marker_color="#762181", text=[fmt_eur_local(turn_year_new)], textposition="outside"))
-fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"), uniformtext_minsize=10, uniformtext_mode="hide")
+fig_bar.add_trace(go.Bar(name="Baseline", x=["Revenue/year"], y=[turn_year], marker_color="#F59E0B",
+                         text=[turn_year], texttemplate="€%{text:,.0f}", textposition="outside", cliponaxis=False))
+fig_bar.add_trace(go.Bar(name="New (scenario)", x=["Revenue/year"], y=[turn_year_new], marker_color="#762181",
+                         text=[turn_year_new], texttemplate="€%{text:,.0f}", textposition="outside", cliponaxis=False))
+fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"))
 fig_bar.update_yaxes(tickformat=",.0f", title="€ / year")
-fig_bar.update_traces(cliponaxis=False)
 st.plotly_chart(fig_bar, use_container_width=True)
 
+# Donut conversion (PFM red) vs SPV (purple)
 fig_pie = go.Figure(data=[go.Pie(labels=["Conversion", "SPV"], values=[share_conv, share_spv], hole=.55,
                                  marker=dict(colors=["#F04438", "#762181"]),
                                  textinfo="percent+label")])
 fig_pie.update_layout(height=h-40, margin=dict(l=20,r=20,t=10,b=10), showlegend=True)
 st.plotly_chart(fig_pie, use_container_width=True)
 
+# Summary card
 st.markdown(
     f'''
 <div class="big-card">
