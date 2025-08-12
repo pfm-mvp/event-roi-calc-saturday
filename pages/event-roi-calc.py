@@ -99,21 +99,35 @@ for k, v in [
 ]:
     st.session_state.setdefault(k, v)
 
-# =========================
-# Preset selector row: dropdown | Number of stores | Apply
-# =========================
-c1, c2, c3 = st.columns([3,1,1])
+# --- Preset row: dropdown | number of stores | apply (perfectly aligned)
+st.markdown("#### Preset & scope")
+c1, c2, c3 = st.columns([3, 1, 1])
+
 with c1:
-    preset_name = st.selectbox("Preset profile", list(PRESETS.keys()), index=0, key="preset_select")
+    preset_name = st.selectbox(
+        "Preset profile",
+        list(PRESETS.keys()),
+        index=0,
+        key="preset_select",
+        label_visibility="collapsed",
+    )
+
 with c2:
-    st.session_state["num_stores"] = st.number_input("Number of stores", min_value=1, step=1, value=int(st.session_state["num_stores"]))
+    st.session_state["num_stores"] = st.number_input(
+        "Number of stores",
+        min_value=1, step=1, value=int(st.session_state.get("num_stores", 1)),
+        label_visibility="collapsed",
+    )
+
 with c3:
-    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)  # slight vertical centering
+    # dezelfde hoogte als inputs; full width; PFM‑red via CSS heb je al
     if st.button("Apply preset", use_container_width=True):
         p = PRESETS[preset_name]
-        for key in ["visitors_day","conv_pct","atv_eur","open_days","capex","opex_month","gross_margin","uplift_conv","uplift_spv","sat_share","sat_boost"]:
+        for key in ["visitors_day","conv_pct","atv_eur","open_days",
+                    "capex","opex_month","gross_margin","uplift_conv",
+                    "uplift_spv","sat_share","sat_boost"]:
             st.session_state[key] = p[key]
-        # NOTE: do not overwrite num_stores when applying a preset
+        # stores niet overschrijven
         st.session_state["preset_desc"] = p.get("desc","")
         st.rerun()
 
