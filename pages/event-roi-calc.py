@@ -99,7 +99,9 @@ for k, v in [
 ]:
     st.session_state.setdefault(k, v)
 
-# --- Preset row: dropdown | number of stores | apply (perfectly aligned)
+# =========================
+# Preset & scope row (aligned): dropdown | number of stores | button
+# =========================
 st.markdown("#### Preset & scope")
 c1, c2, c3 = st.columns([3, 1, 1])
 
@@ -115,19 +117,18 @@ with c1:
 with c2:
     st.session_state["num_stores"] = st.number_input(
         "Number of stores",
-        min_value=1, step=1, value=int(st.session_state.get("num_stores", 1)),
+        min_value=1, step=1, value=int(st.session_state["num_stores"]),
         label_visibility="collapsed",
     )
 
 with c3:
-    # dezelfde hoogte als inputs; full width; PFM‑red via CSS heb je al
     if st.button("Apply preset", use_container_width=True):
         p = PRESETS[preset_name]
         for key in ["visitors_day","conv_pct","atv_eur","open_days",
                     "capex","opex_month","gross_margin","uplift_conv",
                     "uplift_spv","sat_share","sat_boost"]:
             st.session_state[key] = p[key]
-        # stores niet overschrijven
+        # Preserve current number of stores
         st.session_state["preset_desc"] = p.get("desc","")
         st.rerun()
 
@@ -153,7 +154,13 @@ with left:
 with right:
     st.subheader("What-if scenarios (apply to all stores)")
     st.session_state["uplift_conv"]  = st.slider("Conversion uplift (%)", 0, 50, int(round(st.session_state["uplift_conv"]*100)), 1) / 100.0
-    st.session_state["uplift_spv"]   = st.slider("SPV uplift (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
+    st.session_state["uplift_spv"]   = st.slider("SPV uplift via upsell/cross-sell (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
+    # Expo-proof explanation under SPV
+    st.caption(
+        "SPV increases the **average basket** across all sales. "
+        "**+1% SPV ≈ +1% revenue** (Revenue = Visitors × Conversion × SPV). "
+        "Fast wins via bundles, accessories, add‑ons."
+    )
     st.session_state["sat_share"]    = st.slider("Share of turnover on Saturdays (%)", 0, 50, int(round(st.session_state["sat_share"]*100)), 1) / 100.0
     st.session_state["sat_boost"]    = st.slider("Extra conversion on Saturdays (%)", 0, 50, int(round(st.session_state["sat_boost"]*100)), 1) / 100.0
 
@@ -174,7 +181,7 @@ uplift_spv  = V["uplift_spv"]
 sat_share   = V["sat_share"]
 sat_boost   = V["sat_boost"]
 
-# Per store
+# Per store baseline
 visitors_week_store  = vis_day * open_days
 visitors_year_store  = visitors_week_store * 52
 trans_year_store     = visitors_year_store * conv_pct
@@ -189,10 +196,10 @@ trans_year_total    = trans_year_store * n_stores
 turn_year_total     = turn_year_store * n_stores
 
 # Scenario totals with Saturday boost on conversion
-visitors_year_sat_total     = visitors_year_total * sat_share
-trans_year_sat_new_total    = visitors_year_sat_total * conv_new * (1.0 + sat_boost)
-trans_year_non_sat_new_total= (visitors_year_total * (1 - sat_share)) * conv_new
-turn_year_new_total         = (trans_year_sat_new_total + trans_year_non_sat_new_total) * atv_new
+visitors_year_sat_total      = visitors_year_total * sat_share
+trans_year_sat_new_total     = visitors_year_sat_total * conv_new * (1.0 + sat_boost)
+trans_year_non_sat_new_total = (visitors_year_total * (1 - sat_share)) * conv_new
+turn_year_new_total          = (trans_year_sat_new_total + trans_year_non_sat_new_total) * atv_new
 
 uplift_year_abs_total  = max(0.0, turn_year_new_total - turn_year_total)
 uplift_month_abs_total = uplift_year_abs_total / 12.0
@@ -220,10 +227,10 @@ share_conv  = conv_only_uplift_total / split_total
 share_spv   = spv_only_uplift_total / split_total
 
 # Pre-format for EU hover tooltips
-baseline_eur  = fmt_eur(turn_year_total)
-scenario_eur  = fmt_eur(turn_year_new_total)
-conv_uplift_eur = fmt_eur(conv_only_uplift_total)
-spv_uplift_eur  = fmt_eur(spv_only_uplift_total)
+baseline_eur   = fmt_eur(turn_year_total)
+scenario_eur   = fmt_eur(turn_year_new_total)
+conv_uplift_eur= fmt_eur(conv_only_uplift_total)
+spv_uplift_eur = fmt_eur(spv_only_uplift_total)
 
 # =========================
 # KPI Cards (chain totals)
