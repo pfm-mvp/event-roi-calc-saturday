@@ -30,26 +30,26 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
 /* Slider track: paars links, FAFAFA rechts */
-.stSlider > div[data-baseweb="slider"] > div > div {
+.stSlider > div[data-baseweb="slider"] > div > div {{
     background: linear-gradient(to right,
         var(--pfm-purple) 0%,
-        var(--pfm-purple) calc(var(--slider-val, 50) * 1%),
-        #FAFAFA calc(var(--slider-val, 50) * 1%),
+        var(--pfm-purple) 26%,
+        #FAFAFA 26%,
         #FAFAFA 100%
     ) !important;
     height: 6px !important;
     border-radius: 3px !important;
-}
+}}
 
 /* Thumb styling */
-.stSlider > div[data-baseweb="slider"] [role="slider"] {
+.stSlider > div[data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
     top: 50% !important;
     transform: translateY(-50%) !important; /* centreren */
-}
+}}
 </style>
 """
 
