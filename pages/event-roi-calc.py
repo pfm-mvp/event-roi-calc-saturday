@@ -353,8 +353,14 @@ fig_bar.add_trace(go.Bar(
     customdata=[[scenario_eur]],
     hovertemplate="New (scenario): %{customdata[0]}<extra></extra>"
 ))
-fig_bar.update_layout(barmode="group", height=h, margin=dict(l=20,r=20,t=10,b=10), legend=dict(orientation="h"))
-st.plotly_chart(fig_bar, use_container_width=True)
+
+fig_bar.update_layout(
+    barmode="group",
+    height=h,
+    margin=dict(l=20, r=20, t=10, b=10),
+    legend=dict(orientation="h"),
+    bargap=0.3   # <-- voeg deze toe, 0.3 = 30% ruimte tussen staven
+)
 
 # Donut: Conversion (red) vs SPV (purple) with EU hover
 fig_pie = go.Figure(data=[go.Pie(
