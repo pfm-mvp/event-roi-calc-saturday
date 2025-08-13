@@ -359,7 +359,8 @@ fig_bar.update_layout(
     height=h,
     margin=dict(l=20, r=20, t=10, b=10),
     legend=dict(orientation="h"),
-    bargap=0.3   # <-- voeg deze toe, 0.3 = 30% ruimte tussen staven
+    bargap=0.15,        # 15% ruimte tussen groepen
+    bargroupgap=0.05    # 5% ruimte tussen staven in dezelfde groep
 )
 
 # Donut: Conversion (red) vs SPV (purple) with EU hover
