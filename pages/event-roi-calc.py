@@ -23,7 +23,7 @@ PFM_AMBER  = "#F59E0B"
 PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
-# --- CSS (GEEN background !important op de rail!) ---
+# --- CSS: alleen dimensies + thumb + hover ---
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
@@ -39,19 +39,19 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Slider rail dimensies – geen kleur hier */
+/* Slider rail: alleen maat/radius; géén vaste achtergrondkleur */
 .stSlider [data-baseweb="slider"] > div > div {{
     height: 6px !important;
     border-radius: 3px !important;
 }}
 
-/* Thumb groter en gecentreerd */
+/* Thumb groter en netjes gecentreerd */
 .stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -8px !important;  /* (22 - 6) / 2 */
+    margin-top: -8px !important; /* (22 - 6) / 2 */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
@@ -64,25 +64,26 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 </style>
 """
 
-# --- JS: kleur links/rechts met 'important' en laat meebewegen ---
+
+# --- JS: kleur links/rechts bepalen o.b.v. de thumb-positie ---
 SLIDER_JS = """
 <script>
 (function(){
   function paint(slider){
-    const container = slider.querySelector(':scope > div'); // track container
-    if (!container) return;
-    const segs = container.querySelectorAll(':scope > div'); // 0 = links (actief), 1 = rechts (inactief)
-    const thumb = slider.querySelector('[role="slider"]');
-    if (segs.length < 2 || !thumb) return;
+    const trackWrap = slider.querySelector(':scope > div');           // container met de segmenten
+    const segments  = trackWrap ? trackWrap.querySelectorAll(':scope > div') : null;
+    const thumb     = slider.querySelector('[role="slider"]');
+    if (!segments || segments.length === 0 || !thumb) return;
 
-    const now = parseFloat(thumb.getAttribute('aria-valuenow'));
-    const min = parseFloat(thumb.getAttribute('aria-valuemin')) || 0;
-    const max = parseFloat(thumb.getAttribute('aria-valuemax')) || 100;
-    const pct = Math.max(0, Math.min(100, ((now - min) / (max - min)) * 100));
+    const tRect  = thumb.getBoundingClientRect();
+    const center = tRect.left + tRect.width/2;
 
-    // BaseWeb positioneert de segmenten zelf; wij zetten alleen kleuren met !important
-    segs[0].style.setProperty('background', 'var(--pfm-purple)', 'important'); // links = actief
-    segs[1].style.setProperty('background', '#FAFAFA', 'important');           // rechts = inactief
+    segments.forEach(seg => {
+      const r = seg.getBoundingClientRect();
+      // Als dit segment volledig links van het thumb-centrum eindigt => actief (paars); anders inactief (FAFAFA)
+      const active = (r.right <= center);
+      seg.style.setProperty('background', active ? 'var(--pfm-purple)' : '#FAFAFA', 'important');
+    });
   }
 
   function attach(slider){
@@ -94,9 +95,7 @@ SLIDER_JS = """
     paint(slider);
   }
 
-  function scan(){
-    document.querySelectorAll('.stSlider [data-baseweb="slider"]').forEach(attach);
-  }
+  function scan(){ document.querySelectorAll('.stSlider [data-baseweb="slider"]').forEach(attach); }
 
   window.addEventListener('load', scan);
   const mo = new MutationObserver(scan);
@@ -104,6 +103,10 @@ SLIDER_JS = """
 })();
 </script>
 """
+
+st.markdown(BASE_CSS, unsafe_allow_html=True)
+st.markdown(SLIDER_JS, unsafe_allow_html=True)
+
 
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 st.markdown(SLIDER_JS, unsafe_allow_html=True)
