@@ -361,6 +361,11 @@ fig_bar.update_layout(
     bargap=0.5,  # iets ruimte tussen de staven
     bargroupgap=0.20     # ruimte tussen de twee bars in dezelfde groep
 )
+
+fig_bar.update_traces(
+    marker_line_width=0.5,
+    marker_line_color="rgba(0,0,0,0.15)"
+)
 st.plotly_chart(fig_bar, use_container_width=True)
 
 # Donut: Conversion (red) vs SPV (purple) with EU hover
