@@ -358,7 +358,7 @@ fig_bar.update_layout(
     height=h,
     margin=dict(l=20, r=20, t=10, b=10),
     legend=dict(orientation="h"),
-    bargap=0.15  # iets ruimte tussen de staven
+    bargap=0.5  # iets ruimte tussen de staven
 )
 st.plotly_chart(fig_bar, use_container_width=True)
 
