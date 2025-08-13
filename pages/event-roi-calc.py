@@ -39,19 +39,25 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Rail dimensies – kleur komt via JS gradient */
-.stSlider [data-baseweb="slider"] > div > div {{
+/* Slider track segmenten */
+.stSlider [data-baseweb="slider"] > div > div:nth-child(1) {{
+    background-color: var(--pfm-purple) !important; /* actief deel */
+    height: 6px !important;
+    border-radius: 3px !important;
+}}
+.stSlider [data-baseweb="slider"] > div > div:nth-child(2) {{
+    background-color: #FAFAFA !important; /* inactief deel */
     height: 6px !important;
     border-radius: 3px !important;
 }}
 
-/* Thumb groter, nét iets lager gecentreerd */
+/* Thumb: groter en 2px lager */
 .stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -6px !important;  /* was -8px → 2px lager */
+    margin-top: -6px !important; /* was -8px, nu iets lager */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
@@ -62,6 +68,7 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 }}
 </style>
 """
+st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # --- JS: zet een gradient op de rail (links paars, rechts #FAFAFA) ---
 SLIDER_JS = """
