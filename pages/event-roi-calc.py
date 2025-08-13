@@ -57,7 +57,7 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -6px !important; /* was -8px, nu iets lager */
+    margin-top: -1px !important; /* was -8px, nu iets lager */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
