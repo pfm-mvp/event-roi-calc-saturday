@@ -23,7 +23,7 @@ PFM_AMBER  = "#F59E0B"
 PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
-# --- CSS: alleen dimensies + thumb + hover ---
+# --- CSS: alleen maat/radius + thumb/hover (geen kleur op rail) ---
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
@@ -39,23 +39,22 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Slider rail: alleen maat/radius; géén vaste achtergrondkleur */
+/* Rail dimensies – kleur komt via JS gradient */
 .stSlider [data-baseweb="slider"] > div > div {{
     height: 6px !important;
     border-radius: 3px !important;
 }}
 
-/* Thumb groter en netjes gecentreerd */
+/* Thumb groter, nét iets lager gecentreerd */
 .stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -8px !important; /* (22 - 6) / 2 */
+    margin-top: -6px !important;  /* was -8px → 2px lager */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
-/* Hover/focus pop */
 .stSlider [data-baseweb="slider"] [role="slider"]:hover,
 .stSlider [data-baseweb="slider"] [role="slider"]:focus {{
     background-color: #9350a3 !important;
@@ -64,25 +63,26 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 </style>
 """
 
-# --- JS: kleur links/rechts bepalen o.b.v. de thumb-positie ---
+# --- JS: zet een gradient op de rail (links paars, rechts #FAFAFA) ---
 SLIDER_JS = """
 <script>
 (function(){
   function paint(slider){
-    const trackWrap = slider.querySelector(':scope > div');           // container met de segmenten
-    const segments  = trackWrap ? trackWrap.querySelectorAll(':scope > div') : null;
-    const thumb     = slider.querySelector('[role="slider"]');
-    if (!segments || segments.length === 0 || !thumb) return;
+    // BaseWeb structuur: [data-baseweb="slider"] > div (trackwrap) > div (rail)
+    const rail = slider.querySelector(':scope > div > div');
+    const thumb = slider.querySelector('[role="slider"]');
+    if (!rail || !thumb) return;
 
-    const tRect  = thumb.getBoundingClientRect();
-    const center = tRect.left + tRect.width/2;
+    const now = parseFloat(thumb.getAttribute('aria-valuenow'));
+    const min = parseFloat(thumb.getAttribute('aria-valuemin')) || 0;
+    const max = parseFloat(thumb.getAttribute('aria-valuemax')) || 100;
+    const pct = Math.max(0, Math.min(100, ((now - min) / (max - min)) * 100));
 
-    segments.forEach(seg => {
-      const r = seg.getBoundingClientRect();
-      // Als dit segment volledig links van het thumb-centrum eindigt => actief (paars); anders inactief (FAFAFA)
-      const active = (r.right <= center);
-      seg.style.setProperty('background', active ? 'var(--pfm-purple)' : '#FAFAFA', 'important');
-    });
+    // Gradient met !important zodat thema-kleuren nooit winnen
+    rail.style.setProperty('background', 
+      `linear-gradient(to right, var(--pfm-purple) 0%, var(--pfm-purple) ${pct}%, #FAFAFA ${pct}%, #FAFAFA 100%)`,
+      'important'
+    );
   }
 
   function attach(slider){
@@ -102,10 +102,6 @@ SLIDER_JS = """
 })();
 </script>
 """
-
-st.markdown(BASE_CSS, unsafe_allow_html=True)
-st.markdown(SLIDER_JS, unsafe_allow_html=True)
-
 
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 st.markdown(SLIDER_JS, unsafe_allow_html=True)
@@ -168,12 +164,12 @@ PRESETS = {
     },
 }
 
-# Session defaults
+# A. Defaults
 for k, v in [
     ("visitors_day", 800), ("conv_pct", 0.20), ("atv_eur", 45.0), ("open_days", 7),
     ("capex", 1500.0), ("opex_month", 30.0), ("gross_margin", 0.60),
     ("uplift_conv", 0.05), ("uplift_spv", 0.05), ("sat_share", 0.18), ("sat_boost", 0.10),
-    ("num_stores", 1),
+    ("num_stores", 50),  # ← default 50
     ("preset_desc", ""),
 ]:
     st.session_state.setdefault(k, v)
@@ -193,13 +189,14 @@ with c1:
         label_visibility="collapsed",
     )
 
+# B. In de 'Preset & scope' rij
 with c2:
     st.session_state["num_stores"] = st.number_input(
-        "Number of stores",               # <-- label zichtbaar
+        "Number of stores",
         min_value=1, step=1, value=int(st.session_state["num_stores"]),
-        help="Chain size used for totals and ROI.",
-        # label_visibility="collapsed",   # <-- weglaten of op "visible" zetten
+        label_visibility="collapsed",
     )
+    st.caption("Number of stores")  # label onder het veld
 
 with c3:
     if st.button("Apply preset", use_container_width=True):
