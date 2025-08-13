@@ -16,12 +16,18 @@ PFM_ORANGE = "#FEAC76"
 
 expo = st.toggle("Expo mode (bigger UI for trade show screens)", value=True)
 
+# kleuren bovenaan blijven zoals jij ze had
+PFM_PURPLE = "#762181"
+PFM_RED    = "#F04438"
+PFM_AMBER  = "#F59E0B"
+PFM_GREEN  = "#16A34A"
+PFM_ORANGE = "#FEAC76"
+
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {{ --pfm-purple:{PFM_PURPLE}; --pfm-red:{PFM_RED}; --pfm-amber:{PFM_AMBER}; --pfm-green:{PFM_GREEN}; --pfm-orange:{PFM_ORANGE}; }}
-
 html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !important; }}
 
 .card {{ border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }}
@@ -33,34 +39,73 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Slider track: links actief (paars), rechts inactief (#FAFAFA) */
-.stSlider > div[data-baseweb="slider"] > div > div:nth-child(1) {{
-    background: var(--pfm-purple) !important;  /* actief */
+/* Rail basis: wij zetten alleen hoogte en radius; kleur doet JS (gradient) */
+.stSlider [data-baseweb="slider"] > div > div {{
     height: 6px !important;
     border-radius: 3px !important;
-}}
-.stSlider > div[data-baseweb="slider"] > div > div:nth-child(2) {{
-    background: #FAFAFA !important;  /* inactief */
-    height: 6px !important;
-    border-radius: 3px !important;
+    background: #FAFAFA !important; /* fallback voordat JS tekent */
 }}
 
-/* Thumb: groter, gecentreerd, hover/focus lichter paars */
-.stSlider > div[data-baseweb="slider"] [role="slider"] {{
+/* Thumb groter, mooi gecentreerd (geen top/transform) */
+.stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -8px !important; /* centreren */
+    margin-top: -8px !important; /* (22 - 6) / 2 */
     border-radius: 50% !important;
-    transition: background-color 0.2s ease;
+    transition: background-color .15s ease, box-shadow .15s ease;
 }}
-.stSlider > div[data-baseweb="slider"] [role="slider"]:hover,
-.stSlider > div[data-baseweb="slider"] [role="slider"]:focus {{
-    background-color: #9350a3 !important; /* lichtere paars bij hover */
+/* Hover/focus effect voor beurs‑pop */
+.stSlider [data-baseweb="slider"] [role="slider"]:hover,
+.stSlider [data-baseweb="slider"] [role="slider"]:focus {{
+    background-color: #9350a3 !important;
+    box-shadow: 0 0 0 6px rgba(118,33,129,0.12) !important;
 }}
 </style>
 """
+
+SLIDER_JS = """
+<script>
+(function(){
+  function paint(slider){
+    const rail = slider.querySelector('div > div'); // de rail-wrapper
+    const thumb = slider.querySelector('[role="slider"]');
+    if (!rail || !thumb) return;
+    const now = parseFloat(thumb.getAttribute('aria-valuenow'));
+    const min = parseFloat(thumb.getAttribute('aria-valuemin')) || 0;
+    const max = parseFloat(thumb.getAttribute('aria-valuemax')) || 100;
+    const pct = Math.max(0, Math.min(100, ((now - min) / (max - min)) * 100));
+    rail.style.background = `linear-gradient(to right,
+      var(--pfm-purple) 0%,
+      var(--pfm-purple) ${pct}%,
+      #FAFAFA ${pct}%,
+      #FAFAFA 100%)`;
+  }
+
+  function attach(slider){
+    const thumb = slider.querySelector('[role="slider"]');
+    if (!thumb) return;
+    ['input','change','mousemove','keydown','pointermove'].forEach(ev=>{
+      thumb.addEventListener(ev, ()=>paint(slider), {passive:true});
+    });
+    paint(slider);
+  }
+
+  function scan(){
+    document.querySelectorAll('.stSlider [data-baseweb="slider"]').forEach(attach);
+  }
+
+  // init + updates
+  window.addEventListener('load', scan);
+  const mo = new MutationObserver(scan);
+  mo.observe(document.body, {{ childList:true, subtree:true }});
+})();
+</script>
+"""
+
+st.markdown(BASE_CSS, unsafe_allow_html=True)
+st.markdown(SLIDER_JS, unsafe_allow_html=True)
 
 EXPO_CSS = """
 <style>
