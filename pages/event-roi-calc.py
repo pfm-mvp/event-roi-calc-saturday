@@ -39,25 +39,25 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Slider track segmenten */
+/* Slider track segmenten – omgedraaid */
 .stSlider [data-baseweb="slider"] > div > div:nth-child(1) {{
-    background-color: var(--pfm-purple) !important; /* actief deel */
+    background-color: #FAFAFA !important; /* inactief deel (rechts in DOM) */
     height: 6px !important;
     border-radius: 3px !important;
 }}
 .stSlider [data-baseweb="slider"] > div > div:nth-child(2) {{
-    background-color: #FAFAFA !important; /* inactief deel */
+    background-color: var(--pfm-purple) !important; /* actief deel (links in DOM) */
     height: 6px !important;
     border-radius: 3px !important;
 }}
 
-/* Thumb: groter en 2px lager */
+/* Thumb */
 .stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -1px !important; /* was -8px, nu iets lager */
+    margin-top: -1px !important; /* jouw perfecte centrering */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
