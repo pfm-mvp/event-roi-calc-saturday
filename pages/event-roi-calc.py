@@ -29,22 +29,27 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Sliders in PFM purple (active) + #FAFAFA (inactive) + grotere thumb */
-.stSlider > div[data-baseweb="slider"] > div > div:first-child {{
-    background: var(--pfm-purple) !important; /* active track */
-}}
-.stSlider > div[data-baseweb="slider"] > div > div:last-child {{
-    background: #FAFAFA !important; /* inactive track */
-}}
+/* Slider track: paars links, FAFAFA rechts */
+.stSlider > div[data-baseweb="slider"] > div > div {
+    background: linear-gradient(to right,
+        var(--pfm-purple) 0%,
+        var(--pfm-purple) calc(var(--slider-val, 50) * 1%),
+        #FAFAFA calc(var(--slider-val, 50) * 1%),
+        #FAFAFA 100%
+    ) !important;
+    height: 6px !important;
+    border-radius: 3px !important;
+}
 
 /* Thumb styling */
-.stSlider > div[data-baseweb="slider"] [role="slider"] {{
+.stSlider > div[data-baseweb="slider"] [role="slider"] {
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
-    width: 22px !important;   /* groter */
-    height: 22px !important;  /* groter */
-    margin-top: -10px !important; /* centreren */
-}}
+    width: 22px !important;
+    height: 22px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important; /* centreren */
+}
 </style>
 """
 
