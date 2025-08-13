@@ -29,14 +29,22 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Sliders in PFM purple */
-.stSlider > div[data-baseweb="slider"] > div > div {{
+/* Sliders in PFM purple (active) + #FAFAFA (inactive) + grotere thumb */
+.stSlider > div[data-baseweb="slider"] > div > div:first-child {
     background: var(--pfm-purple) !important; /* active track */
-}}
-.stSlider > div[data-baseweb="slider"] [role="slider"] {{
-    background-color: var(--pfm-purple) !important; /* thumb */
+}
+.stSlider > div[data-baseweb="slider"] > div > div:last-child {
+    background: #FAFAFA !important; /* inactive track */
+}
+
+/* Thumb styling */
+.stSlider > div[data-baseweb="slider"] [role="slider"] {
+    background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
-}}
+    width: 22px !important;   /* groter */
+    height: 22px !important;  /* groter */
+    margin-top: -10px !important; /* centreren */
+}
 </style>
 """
 
