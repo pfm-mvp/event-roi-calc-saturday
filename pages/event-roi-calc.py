@@ -33,33 +33,27 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Slider track: paars = actief, FAFAFA = inactief */
-.stSlider > div[data-baseweb="slider"] > div > div:nth-child(1) {{
-    background: #FAFAFA !important;  /* left (inactive) */
+/* Slider track in PFM-stijl */
+.stSlider > div[data-baseweb="slider"] > div > div:nth-child(1) {
+    background: var(--pfm-purple) !important;  /* actief (links) */
     height: 6px !important;
     border-radius: 3px !important;
-}}
-.stSlider > div[data-baseweb="slider"] > div > div:nth-child(2) {{
-    background: var(--pfm-purple) !important; /* active */
+}
+.stSlider > div[data-baseweb="slider"] > div > div:nth-child(2) {
+    background: #FAFAFA !important;  /* inactief (rechts) */
     height: 6px !important;
     border-radius: 3px !important;
-}}
-.stSlider > div[data-baseweb="slider"] > div > div:nth-child(3) {{
-    background: #FAFAFA !important;  /* right (inactive) */
-    height: 6px !important;
-    border-radius: 3px !important;
-}}
+}
 
-/* Thumb: groter, gecentreerd (geen transform/top gebruiken) */
-.stSlider > div[data-baseweb="slider"] [role="slider"] {{
+/* Thumb groter en gecentreerd */
+.stSlider > div[data-baseweb="slider"] [role="slider"] {
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -8px !important; /* (22 - 6) / 2 */
-    box-shadow: 0 0 0 0 transparent !important;
+    margin-top: -8px !important; /* (thumb-hoogte - track-hoogte)/2 */
     border-radius: 50% !important;
-}}
+}
 </style>
 """
 
