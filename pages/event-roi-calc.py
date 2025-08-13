@@ -23,10 +23,10 @@ PFM_AMBER  = "#F59E0B"
 PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
+# --- CSS (GEEN background !important op de rail!) ---
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {{ --pfm-purple:{PFM_PURPLE}; --pfm-red:{PFM_RED}; --pfm-amber:{PFM_AMBER}; --pfm-green:{PFM_GREEN}; --pfm-orange:{PFM_ORANGE}; }}
 html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !important; }}
 
@@ -39,24 +39,23 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
 
-/* Rail basis: wij zetten alleen hoogte en radius; kleur doet JS (gradient) */
+/* Slider rail dimensies – geen kleur hier */
 .stSlider [data-baseweb="slider"] > div > div {{
     height: 6px !important;
     border-radius: 3px !important;
-    background: #FAFAFA !important; /* fallback voordat JS tekent */
 }}
 
-/* Thumb groter, mooi gecentreerd (geen top/transform) */
+/* Thumb groter en gecentreerd */
 .stSlider [data-baseweb="slider"] [role="slider"] {{
     background-color: var(--pfm-purple) !important;
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -8px !important; /* (22 - 6) / 2 */
+    margin-top: -8px !important;  /* (22 - 6) / 2 */
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
-/* Hover/focus effect voor beurs‑pop */
+/* Hover/focus pop */
 .stSlider [data-baseweb="slider"] [role="slider"]:hover,
 .stSlider [data-baseweb="slider"] [role="slider"]:focus {{
     background-color: #9350a3 !important;
@@ -65,28 +64,31 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 </style>
 """
 
+# --- JS: kleur links/rechts met 'important' en laat meebewegen ---
 SLIDER_JS = """
 <script>
 (function(){
   function paint(slider){
-    const rail = slider.querySelector('div > div'); // de rail-wrapper
+    const container = slider.querySelector(':scope > div'); // track container
+    if (!container) return;
+    const segs = container.querySelectorAll(':scope > div'); // 0 = links (actief), 1 = rechts (inactief)
     const thumb = slider.querySelector('[role="slider"]');
-    if (!rail || !thumb) return;
+    if (segs.length < 2 || !thumb) return;
+
     const now = parseFloat(thumb.getAttribute('aria-valuenow'));
     const min = parseFloat(thumb.getAttribute('aria-valuemin')) || 0;
     const max = parseFloat(thumb.getAttribute('aria-valuemax')) || 100;
     const pct = Math.max(0, Math.min(100, ((now - min) / (max - min)) * 100));
-    rail.style.background = `linear-gradient(to right,
-      var(--pfm-purple) 0%,
-      var(--pfm-purple) ${pct}%,
-      #FAFAFA ${pct}%,
-      #FAFAFA 100%)`;
+
+    // BaseWeb positioneert de segmenten zelf; wij zetten alleen kleuren met !important
+    segs[0].style.setProperty('background', 'var(--pfm-purple)', 'important'); // links = actief
+    segs[1].style.setProperty('background', '#FAFAFA', 'important');           // rechts = inactief
   }
 
   function attach(slider){
     const thumb = slider.querySelector('[role="slider"]');
     if (!thumb) return;
-    ['input','change','mousemove','keydown','pointermove'].forEach(ev=>{
+    ['input','change','mousemove','keydown','pointermove','pointerup','pointerdown'].forEach(ev=>{
       thumb.addEventListener(ev, ()=>paint(slider), {passive:true});
     });
     paint(slider);
@@ -96,10 +98,9 @@ SLIDER_JS = """
     document.querySelectorAll('.stSlider [data-baseweb="slider"]').forEach(attach);
   }
 
-  // init + updates
   window.addEventListener('load', scan);
   const mo = new MutationObserver(scan);
-  mo.observe(document.body, {{ childList:true, subtree:true }});
+  mo.observe(document.body, { childList:true, subtree:true });
 })();
 </script>
 """
