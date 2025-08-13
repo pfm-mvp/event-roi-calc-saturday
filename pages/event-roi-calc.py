@@ -64,7 +64,6 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 </style>
 """
 
-
 # --- JS: kleur links/rechts bepalen o.b.v. de thumb-positie ---
 SLIDER_JS = """
 <script>
@@ -196,9 +195,10 @@ with c1:
 
 with c2:
     st.session_state["num_stores"] = st.number_input(
-        "Number of stores",
+        "Number of stores",               # <-- label zichtbaar
         min_value=1, step=1, value=int(st.session_state["num_stores"]),
-        label_visibility="collapsed",
+        help="Chain size used for totals and ROI.",
+        # label_visibility="collapsed",   # <-- weglaten of op "visible" zetten
     )
 
 with c3:
