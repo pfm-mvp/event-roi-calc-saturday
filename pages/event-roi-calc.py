@@ -28,6 +28,15 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 .payback-title {{ font-weight:700; }}
 /* PFM red button */
 .stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
+
+/* Sliders in PFM purple */
+.stSlider > div[data-baseweb="slider"] > div > div {{
+    background: var(--pfm-purple) !important; /* active track */
+}}
+.stSlider > div[data-baseweb="slider"] [role="slider"] {{
+    background-color: var(--pfm-purple) !important; /* thumb */
+    border: 2px solid white !important;
+}}
 </style>
 """
 
