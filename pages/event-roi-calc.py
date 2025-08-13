@@ -364,7 +364,7 @@ fig_bar.update_layout(
 
 fig_bar.update_traces(
     marker_line_width=0.5,
-    marker_line_color="rgba(0,0,0,0.15)"
+    marker_line_color="rgba(0,0,0,0.8)"
 )
 st.plotly_chart(fig_bar, use_container_width=True)
 
