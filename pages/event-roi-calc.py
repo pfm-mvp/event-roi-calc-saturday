@@ -131,15 +131,38 @@ st.caption("Show ROI in 60 seconds. Fully interactive, preset-driven.")
 # =========================
 # Helpers
 # =========================
-def fmt_eur(x, decimals=0):
-    try:
-        s = f"€{x:,.{decimals}f}"
-        return s.replace(",", "X").replace(".", ",").replace("X", ".")
-    except Exception:
-        return "€0"
+#def fmt_eur(x, decimals=0):
+    #try:
+        #s = f"€{x:,.{decimals}f}"
+        #return s.replace(",", "X").replace(".", ",").replace("X", ".")
+    #except Exception:
+        #return "€0"
 
-def fmt_pct(x, decimals=1):
-    return f"{x*100:.{decimals}f}%".replace(".", ",")
+#def fmt_pct(x, decimals=1):
+    #return f"{x*100:.{decimals}f}%".replace(".", ",")
+
+def fmt_eur(x, decimals=0):
+    """
+    Formatteert een getal als euro met Nederlandse notatie:
+    - Duizendtal-scheiding: punt (.)
+    - Decimaal: komma (,)
+    - Altijd afronden op 'decimals' plaatsen
+    """
+    try:
+        # Eerst afronden op het gewenste aantal decimalen
+        x_rounded = round(float(x), decimals)
+        
+        # Splits in integer + decimaal deel
+        if decimals == 0:
+            integer_str = f"{int(x_rounded):,}".replace(",", ".")
+            return f"€{integer_str}"
+        else:
+            formatted = f"{x_rounded:,.{decimals}f}"
+            # Vervang , door X (tijdelijke placeholder), . door , , X terug naar .
+            formatted = formatted.replace(",", "X").replace(".", ",").replace("X", ".")
+            return f"€{formatted}"
+    except (ValueError, TypeError):
+        return "€0"
 
 # =========================
 # Presets
@@ -321,15 +344,15 @@ spv_uplift_eur = fmt_eur(spv_only_uplift_total)
 # =========================
 k1, k2, k3, k4 = st.columns(4)
 with k1:
-    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/year (chain)</b></div><div class="kpi">{baseline_eur}</div><div class="kpi-sub">× {n_stores} stores</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/yr</b></div><div class="kpi">{baseline_eur}</div><div class="kpi-sub">× {n_stores} stores</div></div>', unsafe_allow_html=True)
 with k2:
     st.markdown(f'<div class="card"><div><b>⚡ Uplift (year)</b></div><div class="kpi">{fmt_eur(uplift_year_abs_total)}</div><div class="kpi-sub">≈ {fmt_eur(uplift_month_abs_total)} / month</div></div>', unsafe_allow_html=True)
 with k3:
-    st.markdown(f'<div class="card"><div><b>💵 Extra profit/month</b></div><div class="kpi">{fmt_eur(extra_profit_month_total)}</div><div class="kpi-sub">Margin {fmt_pct(gross_margin)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>💵 Extra profit/mnth</b></div><div class="kpi">{fmt_eur(extra_profit_month_total)}</div><div class="kpi-sub">Margin {fmt_pct(gross_margin)}</div></div>', unsafe_allow_html=True)
 with k4:
     card_cls = "card payback-card" if (payback_months != float("inf") and payback_months < 12) else "card"
     payback_text = "n/a" if payback_months == float("inf") else f"{payback_months:.1f}".replace(".", ",") + " mo"
-    st.markdown(f'<div class="{card_cls}"><div class="payback-title">⏱️ Payback time (chain)</div><div class="kpi">{payback_text}</div><div class="kpi-sub">ROI-year {fmt_pct(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="{card_cls}"><div class="payback-title">⏱️ Payback time</div><div class="kpi">{payback_text}</div><div class="kpi-sub">ROI-year {fmt_pct(roi_year_pct,1)}</div></div>', unsafe_allow_html=True)
 
 # =========================
 # Visuals (EU hover tooltips) — chain totals
