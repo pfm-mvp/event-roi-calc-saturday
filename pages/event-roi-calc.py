@@ -116,7 +116,7 @@ st.markdown(SLIDER_JS, unsafe_allow_html=True)
 EXPO_CSS = """
 <style>
 h1, h2, h3, .stMarkdown p { font-size: 1.12em !important; }
-.card .kpi { font-size: 1.7rem !important; }
+.card .kpi { font-size: 1.4rem !important; }
 .card .kpi-sub { font-size: 1.05rem !important; }
 </style>
 """
