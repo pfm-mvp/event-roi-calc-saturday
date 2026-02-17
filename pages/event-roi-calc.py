@@ -64,7 +64,7 @@ html, body, [class*="css"] {{
 .kpi {{
     font-variant-numeric: tabular-nums;
     font-weight: 800;
-    color: #ffffff;   /* let op: font-color → color corrigeren */
+    color: #000000;   /* let op: font-color → color corrigeren */
 }}
 
 .kpi-sub {{
