@@ -334,10 +334,10 @@ share_conv  = conv_only_uplift_total / split_total
 share_spv   = spv_only_uplift_total / split_total
 
 # Pre-format for EU hover tooltips
-baseline_eur   = fmt_eur(turn_year_total)
-scenario_eur   = fmt_eur(turn_year_new_total)
-conv_uplift_eur= fmt_eur(conv_only_uplift_total)
-spv_uplift_eur = fmt_eur(spv_only_uplift_total)
+baseline_eur   = fmt_eur(turn_year_total, decimals=0)
+scenario_eur   = fmt_eur(turn_year_new_total, decimals=0)
+conv_uplift_eur= fmt_eur(conv_only_uplift_total, decimals=0)
+spv_uplift_eur = fmt_eur(spv_only_uplift_total, decimals=0)
 
 # =========================
 # KPI Cards (chain totals)
