@@ -23,7 +23,7 @@ PFM_AMBER  = "#F59E0B"
 PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
-# --- CSS: alleen maat/radius + thumb/hover (geen kleur op rail) ---
+# --- CSS: alleen maat/radius + thumb/hover (geen kleur op rail) --- origineel rij 36 FFF7F2
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
@@ -33,7 +33,7 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 .card {{ border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }}
 .kpi  {{ font-variant-numeric: tabular-nums; font-weight: 800; }}
 .kpi-sub {{ color:#666; }}
-.payback-card {{ border:1px solid var(--pfm-orange); background: #FFF7F2; }}
+.payback-card {{ border:1px solid var(--pfm-orange); background: #6699ff; }} 
 .payback-title {{ font-weight:700; }}
 
 /* PFM red button */
