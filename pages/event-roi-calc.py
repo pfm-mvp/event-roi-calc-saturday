@@ -139,7 +139,7 @@ st.caption("Show ROI in 60 seconds. Fully interactive, preset-driven.")
         #return "€0"
 
 def fmt_pct(x, decimals=1):
-    #return f"{x*100:.{decimals}f}%".replace(".", ",")
+    return f"{x*100:.{decimals}f}%".replace(".", ",")
 
 def fmt_eur(x, decimals=0):
     """
