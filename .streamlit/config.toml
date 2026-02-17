@@ -1,16 +1,6 @@
 [theme]
-base = "dark"  # of laat weg als je alleen dark wilt
-
-primaryColor = "#58a6ff"          # zacht blauw accent (goed voor sliders/buttons/links)
-backgroundColor = "#0d1117"       # hoofd achtergrond (donker grijs-zwart)
-secondaryBackgroundColor = "#161b22"  # voor cards, sidebar, containers
-textColor = "#c9d1d9"             # lichte grijze tekst (goed leesbaar)
-font = "helvetica"               # veiliger dan helvetica (maar je kunt helvetica houden)
-
-
-#base = "dark"
-#primaryColor = "#0C111D"
-#backgroundColor = "#FFFFFF"
-#secondaryBackgroundColor = "#F0F1F1"
-#textColor = "#0C111D"
-#font = "helvetica"
+primaryColor = "#0C111D"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F1F1"
+textColor = "#0C111D"
+font = "helvetica"
