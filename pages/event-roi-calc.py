@@ -143,6 +143,37 @@ h1, h2, h3, .stMarkdown p {{
 # Combineer beide CSS blocks (BASE eerst, dan EXPO → EXPO overschrijft waar nodig)
 FULL_CSS = BASE_CSS + EXPO_CSS
 
+REDUCE_TOP_PADDING = """
+<style>
+    /* Hoofd content container - reduceer top padding */
+    .stAppViewBlockContainer,
+    section.main .block-container,
+    .block-container {
+        padding-top: 1rem !important;     /* was ~3-4rem → nu veel minder */
+        margin-top: 0 !important;
+    }
+
+    /* Extra agressief als nodig - forceer echt naar boven */
+    .stMainBlockContainer {
+        padding-top: 0.5rem !important;
+    }
+
+    /* Optioneel: header volledig weg of transparant maken als je dat nog niet hebt */
+    header {
+        visibility: hidden;
+        height: 0 !important;
+    }
+
+    /* Zorg dat de eerste content niet overlapt met eventuele vaste header */
+    .stApp {
+        padding-top: 0 !important;
+    }
+</style>
+"""
+
+# Voeg toe aan je FULL_CSS
+FULL_CSS = BASE_CSS + EXPO_CSS + REDUCE_TOP_PADDING
+
 # Slider gradient JS (blijft hetzelfde)
 SLIDER_JS = """
 <script>
@@ -183,6 +214,7 @@ st.markdown(SLIDER_JS, unsafe_allow_html=True)
 # Dan verder met de rest van je app
 st.title("PFM ROI Simulator — Expo Edition")
 st.caption("Show ROI in 60 seconds. Fully interactive, preset-driven.")
+
 
 # =========================
 # Helpers
