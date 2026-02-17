@@ -30,10 +30,10 @@ BASE_CSS = f"""
 :root {{ --pfm-purple:{PFM_PURPLE}; --pfm-red:{PFM_RED}; --pfm-amber:{PFM_AMBER}; --pfm-green:{PFM_GREEN}; --pfm-orange:{PFM_ORANGE}; }}
 html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !important; }}
 
-.card {{ border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#F59E0B; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }}
-.kpi  {{ font-variant-numeric: tabular-nums; font-weight: 800; }}
+.card {{ border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#16A34A box-shadow: 0 1px 2px rgba(0,0,0,0.05); }}
+.kpi  {{ font-variant-numeric: tabular-nums; font-weight: 800; font-color: #ffffff; }}
 .kpi-sub {{ color:#666; }}
-.payback-card {{ border:1px solid var(--pfm-orange); background: #F59E0B; }} 
+.payback-card {{ border:1px solid var(--pfm-orange); background: #16A34A; }} 
 .payback-title {{ font-weight:700; }}
 
 /* PFM red button */
