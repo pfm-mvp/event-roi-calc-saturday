@@ -5,7 +5,7 @@ primaryColor = "#58a6ff"          # zacht blauw accent (goed voor sliders/button
 backgroundColor = "#0d1117"       # hoofd achtergrond (donker grijs-zwart)
 secondaryBackgroundColor = "#161b22"  # voor cards, sidebar, containers
 textColor = "#c9d1d9"             # lichte grijze tekst (goed leesbaar)
-font = "sans serif"               # veiliger dan helvetica (maar je kunt helvetica houden)
+font = "helvetica"               # veiliger dan helvetica (maar je kunt helvetica houden)
 
 
 #base = "dark"
