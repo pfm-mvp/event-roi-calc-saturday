@@ -161,7 +161,7 @@ PRESETS = {
         "visitors_day": 600, "conv_pct": 0.22, "atv_eur": 60.0, "open_days": 7,
         "capex": 1500.0, "opex_month": 30.0, "gross_margin": 0.58,
         "uplift_conv": 0.05, "uplift_spv": 0.07, "sat_share": 0.22, "sat_boost": 0.12,
-        "desc": "Sports: seasonal peaks; demo zones and weekend traffic make SPV and conversion pop."
+        "desc": "Sports: seasonal peaks; demo zones and weekend traffic make ATV and conversion pop."
     },
     "Drugstore & Personal Care": {
         "visitors_day": 900, "conv_pct": 0.28, "atv_eur": 22.0, "open_days": 7,
@@ -238,10 +238,10 @@ with left:
 with right:
     st.subheader("What-if scenarios (apply to all stores)")
     st.session_state["uplift_conv"]  = st.slider("Conversion uplift (%)", 0, 50, int(round(st.session_state["uplift_conv"]*100)), 1) / 100.0
-    st.session_state["uplift_spv"]   = st.slider("SPV uplift via upsell/cross-sell (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
+    st.session_state["uplift_spv"]   = st.slider("ATV uplift via upsell/cross-sell (%)", 0, 50, int(round(st.session_state["uplift_spv"]*100)), 1) / 100.0
     # Expo-proof explanation under SPV
     st.caption(
-        "SPV increases the **average basket** across all sales. "
+        "ATV increases the **average basket** across all sales. "
         "**+1% SPV ≈ +1% revenue** (Revenue = Visitors × Conversion × SPV). "
         "Fast wins via bundles, accessories, add‑ons."
     )
@@ -368,9 +368,9 @@ fig_bar.update_traces(
 )
 st.plotly_chart(fig_bar, use_container_width=True)
 
-# Donut: Conversion (red) vs SPV (purple) with EU hover
+# Donut: Conversion (red) vs ATV (purple) with EU hover
 fig_pie = go.Figure(data=[go.Pie(
-    labels=["Conversion", "SPV"],
+    labels=["Conversion", "ATV"],
     values=[share_conv, share_spv],
     hole=.55,
     marker=dict(colors=[PFM_RED, PFM_PURPLE]),
