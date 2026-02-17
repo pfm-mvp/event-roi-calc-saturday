@@ -14,7 +14,8 @@ PFM_AMBER  = "#F59E0B"
 PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
-expo = st.toggle("Expo mode (bigger UI for trade show screens)", value=True)
+#expo = st.toggle("Expo mode (bigger UI for trade show screens)", value=True)
+expo = True  # Vast aan voor deze Expo Edition app
 
 # kleuren bovenaan blijven zoals jij ze had
 PFM_PURPLE = "#762181"
@@ -116,14 +117,15 @@ st.markdown(SLIDER_JS, unsafe_allow_html=True)
 EXPO_CSS = """
 <style>
 h1, h2, h3, .stMarkdown p { font-size: 1.12em !important; }
-.card .kpi { font-size: 1.4rem !important; }
+.card .kpi { font-size: 1.2rem !important; }
 .card .kpi-sub { font-size: 1.05rem !important; }
 </style>
 """
 
 st.markdown(BASE_CSS, unsafe_allow_html=True)
-if expo:
-    st.markdown(EXPO_CSS, unsafe_allow_html=True)
+#if expo:
+    #st.markdown(EXPO_CSS, unsafe_allow_html=True)
+st.markdown(EXPO_CSS, unsafe_allow_html=True)
 
 st.title("PFM ROI Simulator — Expo Edition")
 st.caption("Show ROI in 60 seconds. Fully interactive, preset-driven.")
