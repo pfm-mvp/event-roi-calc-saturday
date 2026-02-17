@@ -25,29 +25,80 @@ PFM_GREEN  = "#16A34A"
 PFM_ORANGE = "#FEAC76"
 
 # --- CSS: alleen maat/radius + thumb/hover (geen kleur op rail) --- origineel rij 36 FFF7F2
+# =========================
+# CSS & JS (één keer laden, geen duplicatie)
+# =========================
+
+# Branding colors (blijven zoals je ze had)
+PFM_PURPLE = "#762181"
+PFM_RED    = "#F04438"
+PFM_AMBER  = "#F59E0B"
+PFM_GREEN  = "#16A34A"
+PFM_ORANGE = "#FEAC76"
+
+# Basis CSS (fonts, cards, buttons, sliders styling)
 BASE_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
-:root {{ --pfm-purple:{PFM_PURPLE}; --pfm-red:{PFM_RED}; --pfm-amber:{PFM_AMBER}; --pfm-green:{PFM_GREEN}; --pfm-orange:{PFM_ORANGE}; }}
-html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !important; }}
 
-.card {{ border: 1px solid #eee; border-radius: 16px; padding: 14px 16px; background:#FFF7F2; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }}
-.kpi  {{ font-variant-numeric: tabular-nums; font-weight: 800; font-color: #ffffff; }}
-.kpi-sub {{ color:#666; }}
-.payback-card {{ border:1px solid var(--pfm-orange); background: #FFF7F2; }} 
-.payback-title {{ font-weight:700; }}
+:root {{
+    --pfm-purple: {PFM_PURPLE};
+    --pfm-red:    {PFM_RED};
+    --pfm-amber:  {PFM_AMBER};
+    --pfm-green:  {PFM_GREEN};
+    --pfm-orange: {PFM_ORANGE};
+}}
+
+html, body, [class*="css"] {{
+    font-family: 'Instrument Sans', sans-serif !important;
+}}
+
+.card {{
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: #FFF7F2;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}}
+
+.kpi {{
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    color: #ffffff;   /* let op: font-color → color corrigeren */
+}}
+
+.kpi-sub {{
+    color: #666;
+}}
+
+.payback-card {{
+    border: 1px solid var(--pfm-orange);
+    background: #FFF7F2;
+}}
+
+.payback-title {{
+    font-weight: 700;
+}}
 
 /* PFM red button */
-.stButton > button {{ background-color: var(--pfm-red) !important; color: white !important; border:none !important; border-radius: 12px !important; font-weight:700 !important; height:44px; }}
+.stButton > button {{
+    background-color: var(--pfm-red) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    height: 44px;
+}}
 
 /* Slider track segmenten – omgedraaid */
 .stSlider [data-baseweb="slider"] > div > div:nth-child(1) {{
-    background-color: #FAFAFA !important; /* inactief deel (rechts in DOM) */
+    background-color: #FAFAFA !important; /* inactief deel */
     height: 6px !important;
     border-radius: 3px !important;
 }}
+
 .stSlider [data-baseweb="slider"] > div > div:nth-child(2) {{
-    background-color: var(--pfm-purple) !important; /* actief deel (links in DOM) */
+    background-color: var(--pfm-purple) !important; /* actief deel */
     height: 6px !important;
     border-radius: 3px !important;
 }}
@@ -58,10 +109,11 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
     border: 2px solid white !important;
     width: 22px !important;
     height: 22px !important;
-    margin-top: -1px !important; /* jouw perfecte centrering */
+    margin-top: -1px !important;
     border-radius: 50% !important;
     transition: background-color .15s ease, box-shadow .15s ease;
 }}
+
 .stSlider [data-baseweb="slider"] [role="slider"]:hover,
 .stSlider [data-baseweb="slider"] [role="slider"]:focus {{
     background-color: #9350a3 !important;
@@ -69,30 +121,44 @@ html, body, [class*="css"] {{ font-family: 'Instrument Sans', sans-serif !import
 }}
 </style>
 """
-st.markdown(BASE_CSS, unsafe_allow_html=True)
 
-# --- JS: zet een gradient op de rail (links paars, rechts #FAFAFA) ---
+# Expo mode: grotere letters (altijd laden, want expo vast op True)
+EXPO_CSS = """
+<style>
+h1, h2, h3, .stMarkdown p {{
+    font-size: 1.12em !important;
+}}
+
+.card .kpi {{
+    font-size: 1.2rem !important;
+}}
+
+.card .kpi-sub {{
+    font-size: 1.05rem !important;
+}}
+</style>
+"""
+
+# Combineer beide CSS blocks (BASE eerst, dan EXPO → EXPO overschrijft waar nodig)
+FULL_CSS = BASE_CSS + EXPO_CSS
+
+# Slider gradient JS (blijft hetzelfde)
 SLIDER_JS = """
 <script>
 (function(){
   function paint(slider){
-    // BaseWeb structuur: [data-baseweb="slider"] > div (trackwrap) > div (rail)
     const rail = slider.querySelector(':scope > div > div');
     const thumb = slider.querySelector('[role="slider"]');
     if (!rail || !thumb) return;
-
     const now = parseFloat(thumb.getAttribute('aria-valuenow'));
     const min = parseFloat(thumb.getAttribute('aria-valuemin')) || 0;
     const max = parseFloat(thumb.getAttribute('aria-valuemax')) || 100;
     const pct = Math.max(0, Math.min(100, ((now - min) / (max - min)) * 100));
-
-    // Gradient met !important zodat thema-kleuren nooit winnen
-    rail.style.setProperty('background', 
+    rail.style.setProperty('background',
       `linear-gradient(to right, var(--pfm-purple) 0%, var(--pfm-purple) ${pct}%, #FAFAFA ${pct}%, #FAFAFA 100%)`,
       'important'
     );
   }
-
   function attach(slider){
     const thumb = slider.querySelector('[role="slider"]');
     if (!thumb) return;
@@ -101,9 +167,7 @@ SLIDER_JS = """
     });
     paint(slider);
   }
-
   function scan(){ document.querySelectorAll('.stSlider [data-baseweb="slider"]').forEach(attach); }
-
   window.addEventListener('load', scan);
   const mo = new MutationObserver(scan);
   mo.observe(document.body, { childList:true, subtree:true });
@@ -111,22 +175,11 @@ SLIDER_JS = """
 </script>
 """
 
-st.markdown(BASE_CSS, unsafe_allow_html=True)
+# Laad alles maar één keer
+st.markdown(FULL_CSS, unsafe_allow_html=True)
 st.markdown(SLIDER_JS, unsafe_allow_html=True)
 
-EXPO_CSS = """
-<style>
-h1, h2, h3, .stMarkdown p { font-size: 1.12em !important; }
-.card .kpi { font-size: 1.2rem !important; }
-.card .kpi-sub { font-size: 1.05rem !important; }
-</style>
-"""
-
-st.markdown(BASE_CSS, unsafe_allow_html=True)
-#if expo:
-    #st.markdown(EXPO_CSS, unsafe_allow_html=True)
-st.markdown(EXPO_CSS, unsafe_allow_html=True)
-
+# Dan verder met de rest van je app
 st.title("PFM ROI Simulator — Expo Edition")
 st.caption("Show ROI in 60 seconds. Fully interactive, preset-driven.")
 
