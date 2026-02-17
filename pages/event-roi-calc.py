@@ -130,7 +130,7 @@ h1, h2, h3, .stMarkdown p {{
 }}
 
 .card .kpi {{
-    font-size: 1.2rem !important;
+    font-size: 1.5rem !important;
 }}
 
 .card .kpi-sub {{
