@@ -353,7 +353,7 @@ with right:
     # Expo-proof explanation under SPV
     st.caption(
         "ATV increases the **average basket** across all sales. "
-        "**+1% SPV ≈ +1% revenue** (Revenue = Visitors × Conversion × SPV). "
+        "**+1% ATV ≈ +1% revenue** (Revenue = Visitors × Conversion × ATV). "
         "Fast wins via bundles, accessories, add‑ons."
     )
     st.session_state["sat_share"]    = st.slider("Share of turnover on Saturdays (%)", 0, 50, int(round(st.session_state["sat_share"]*100)), 1) / 100.0
