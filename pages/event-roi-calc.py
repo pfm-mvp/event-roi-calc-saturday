@@ -259,25 +259,25 @@ PRESETS = {
     "Fashion Retail": {
         "visitors_day": 350, "conv_pct": 0.20, "atv_eur": 45.0, "open_days": 7,
         "capex": 1200.0, "opex_month": 25.0, "gross_margin": 0.60,
-        "uplift_conv": 0.05, "uplift_spv": 0.05, "sat_share": 0.18, "sat_boost": 0.10,
+        "uplift_conv": 0.01, "uplift_spv": 0.05, "sat_share": 0.18, "sat_boost": 0.10,
         "desc": "Fashion: steady weekday traffic, weekend peaks; upsell and fitting-room conversion drive ROI."
     },
     "Optics & Eyewear": {
         "visitors_day": 150, "conv_pct": 0.35, "atv_eur": 140.0, "open_days": 6,
         "capex": 1200.0, "opex_month": 25.0, "gross_margin": 0.65,
-        "uplift_conv": 0.04, "uplift_spv": 0.06, "sat_share": 0.20, "sat_boost": 0.08,
+        "uplift_conv": 0.05, "uplift_spv": 0.07, "sat_share": 0.20, "sat_boost": 0.08,
         "desc": "Optics: higher ATV with appointment-like footfall; staffing around Saturday boosts conversion."
     },
     "Sports & Outdoor": {
         "visitors_day": 400, "conv_pct": 0.22, "atv_eur": 60.0, "open_days": 7,
         "capex": 1200.0, "opex_month": 25.0, "gross_margin": 0.58,
-        "uplift_conv": 0.05, "uplift_spv": 0.07, "sat_share": 0.22, "sat_boost": 0.12,
+        "uplift_conv": 0.02, "uplift_spv": 0.05, "sat_share": 0.22, "sat_boost": 0.12,
         "desc": "Sports: seasonal peaks; demo zones and weekend traffic make ATV and conversion pop."
     },
     "Drugstore & Personal Care": {
         "visitors_day": 400, "conv_pct": 0.28, "atv_eur": 22.0, "open_days": 7,
         "capex": 1200.0, "opex_month": 25.0, "gross_margin": 0.40,
-        "uplift_conv": 0.03, "uplift_spv": 0.04, "sat_share": 0.16, "sat_boost": 0.06,
+        "uplift_conv": 0.02, "uplift_spv": 0.04, "sat_share": 0.16, "sat_boost": 0.06,
         "desc": "Drugstore: high frequency, lower ATV; queue reduction and cross-sell lift weekend ROI."
     },
 }
@@ -340,6 +340,7 @@ with left:
     st.session_state["conv_pct"]     = st.slider("Conversion rate (%)", 10, 90, int(round(st.session_state["conv_pct"]*100)), 1) / 100.0
     st.session_state["atv_eur"]      = st.number_input("Average ticket value (ATV, €)", min_value=0.0, value=float(st.session_state["atv_eur"]), step=1.0)
     st.session_state["open_days"]    = st.slider("Open days per week", 1, 7, int(st.session_state["open_days"]), 1)
+    st.session_state["gross_margin"] = st.slider("Gross margin (%)", 30, 90, int(round(st.session_state["gross_margin"]*100)), 1) / 100.0
 
     st.subheader("Investment & margin (per store)")
     st.session_state["capex"]        = st.number_input("One-off investment (€)", min_value=0.0, value=float(st.session_state["capex"]), step=50.0)
