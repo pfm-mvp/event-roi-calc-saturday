@@ -340,7 +340,6 @@ with left:
     st.session_state["conv_pct"]     = st.slider("Conversion rate (%)", 10, 90, int(round(st.session_state["conv_pct"]*100)), 1) / 100.0
     st.session_state["atv_eur"]      = st.number_input("Average ticket value (ATV, €)", min_value=0.0, value=float(st.session_state["atv_eur"]), step=1.0)
     st.session_state["open_days"]    = st.slider("Open days per week", 1, 7, int(st.session_state["open_days"]), 1)
-    st.session_state["gross_margin"] = st.slider("Gross margin (%)", 30, 90, int(round(st.session_state["gross_margin"]*100)), 1) / 100.0
 
     st.subheader("Investment & margin (per store)")
     st.session_state["capex"]        = st.number_input("One-off investment (€)", min_value=0.0, value=float(st.session_state["capex"]), step=50.0)
@@ -369,7 +368,6 @@ vis_day     = V["visitors_day"]
 conv_pct    = V["conv_pct"]
 atv_eur     = V["atv_eur"]
 open_days   = V["open_days"]
-gross_margin= V["gross_margin"]
 capex       = V["capex"]
 opex_month  = V["opex_month"]
 gross_margin= V["gross_margin"]
