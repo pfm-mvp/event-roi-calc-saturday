@@ -432,9 +432,9 @@ spv_uplift_eur = fmt_eur(spv_only_uplift_total, decimals=0)
 # =========================
 k1, k2, k3, k4 = st.columns(4)
 with k1:
-    st.markdown(f'<div class="card"><div><b>🧮 Baseline revenue/yr</b></div><div class="kpi">{baseline_eur}</div><div class="kpi-sub">× {n_stores} stores</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>🧮 Revenue/yr</b></div><div class="kpi">{baseline_eur}</div><div class="kpi-sub">× {n_stores} stores</div></div>', unsafe_allow_html=True)
 with k2:
-    st.markdown(f'<div class="card"><div><b>⚡ Uplift (year)</b></div><div class="kpi">{fmt_eur(uplift_year_abs_total)}</div><div class="kpi-sub">≈ {fmt_eur(uplift_month_abs_total)} / month</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div><b>⚡ Uplift/yr</b></div><div class="kpi">{fmt_eur(uplift_year_abs_total)}</div><div class="kpi-sub">≈ {fmt_eur(uplift_month_abs_total)} / month</div></div>', unsafe_allow_html=True)
 with k3:
     st.markdown(f'<div class="card"><div><b>💵 Extra profit/mnth</b></div><div class="kpi">{fmt_eur(extra_profit_month_total)}</div><div class="kpi-sub">Margin {fmt_pct(gross_margin)}</div></div>', unsafe_allow_html=True)
 with k4:
